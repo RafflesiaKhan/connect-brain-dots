@@ -42,7 +42,7 @@ export default async function Landing() {
               solid alternatives.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <LinkButton href={signedIn ? "/home" : "/login"} className="px-7 py-3.5 text-base">
+              <LinkButton href={signedIn ? "/home" : "/login?mode=signup"} className="px-7 py-3.5 text-base">
                 {signedIn ? "Connect some dots" : "Meet your brain buddy"} →
               </LinkButton>
               <a href="#how" className="inline-flex items-center px-4 font-semibold text-ink-soft hover:text-ink">

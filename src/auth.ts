@@ -2,38 +2,34 @@ import NextAuth, { type NextAuthConfig } from "next-auth";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import Google from "next-auth/providers/google";
 import GitHub from "next-auth/providers/github";
-import Resend from "next-auth/providers/resend";
 import Credentials from "next-auth/providers/credentials";
-import { eq } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
 import { db, schema } from "@/db";
+import { dummyHash, verifyPassword } from "@/lib/password";
 
-export const demoLoginEnabled =
-  process.env.AUTH_DEMO_LOGIN === "true" && process.env.NODE_ENV !== "production";
-
-const providers: NextAuthConfig["providers"] = [];
+const providers: NextAuthConfig["providers"] = [
+  // Username or email + password. Sign-up lives in src/app/login/actions.ts.
+  Credentials({
+    id: "password",
+    name: "Password",
+    credentials: { identifier: {}, password: {} },
+    async authorize(creds) {
+      const identifier = String(creds?.identifier ?? "").trim().toLowerCase();
+      const password = String(creds?.password ?? "");
+      if (!identifier || !password) return null;
+      const [user] = await db
+        .select()
+        .from(schema.users)
+        .where(or(eq(schema.users.email, identifier), eq(schema.users.username, identifier)));
+      const ok = await verifyPassword(password, user?.passwordHash ?? (await dummyHash()));
+      if (!user || !ok) return null;
+      return { id: user.id, name: user.name, email: user.email, image: user.image };
+    },
+  }),
+];
+// Optional extra sign-in methods, switched on by their env vars.
 if (process.env.AUTH_GOOGLE_ID) providers.push(Google);
 if (process.env.AUTH_GITHUB_ID) providers.push(GitHub);
-if (process.env.AUTH_RESEND_KEY) {
-  providers.push(Resend({ from: process.env.AUTH_EMAIL_FROM ?? "onboarding@resend.dev" }));
-}
-if (demoLoginEnabled) {
-  providers.push(
-    Credentials({
-      id: "demo",
-      name: "Quick local login",
-      credentials: { name: {}, email: {} },
-      async authorize(creds) {
-        const email = String(creds?.email ?? "").trim().toLowerCase();
-        const name = String(creds?.name ?? "").trim() || email.split("@")[0];
-        if (!/^\S+@\S+\.\S+$/.test(email)) return null;
-        const [found] = await db.select().from(schema.users).where(eq(schema.users.email, email));
-        if (found) return found;
-        const [created] = await db.insert(schema.users).values({ email, name }).returning();
-        return created;
-      },
-    }),
-  );
-}
 
 export const enabledProviders = providers.map((p) => {
   const cfg = typeof p === "function" ? p() : p;
@@ -50,7 +46,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   // JWT sessions so the credentials provider works alongside OAuth.
   session: { strategy: "jwt" },
   providers,
-  pages: { signIn: "/login", verifyRequest: "/login?check=email" },
+  pages: { signIn: "/login" },
   callbacks: {
     jwt({ token, user }) {
       if (user?.id) token.sub = user.id;
