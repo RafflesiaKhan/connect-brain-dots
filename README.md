@@ -106,6 +106,8 @@ The model never gets the final word on its own. `src/lib/scoring.ts` sits betwee
 
 `npm run test:agent` runs the whole pipeline against a scripted mock model and checks these guardrails.
 
+GitHub Actions (`.github/workflows/ci.yml`) runs typecheck, lint, these agent tests and a production build on every pull request and every push to `main`.
+
 ## Project map
 
 ```
