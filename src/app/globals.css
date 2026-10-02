@@ -1,0 +1,114 @@
+@import "tailwindcss";
+@import "@xyflow/react/dist/style.css";
+
+:root {
+  --cream: #fffaf3;
+  --ink: #2b2440;
+  --ink-soft: #5f5878;
+  --muted: #958eaa;
+  --line: #ece5fb;
+  --violet: #7c5cff;
+  --violet-deep: #5b3fe0;
+  --lilac: #e4dbff;
+  --peach: #ffe0cc;
+  --mint: #d3f5e7;
+  --sky: #d8ecff;
+  --butter: #fff3c4;
+  --pink: #ffd9ea;
+  /* Chart series: validated for CVD separation on the cream surface. */
+  --series-1: #7c5cff;
+  --series-2: #f0714f;
+  --series-3: #16a394;
+  --series-4: #e09a00;
+  --series-5: #d9559b;
+}
+
+@theme inline {
+  --color-cream: var(--cream);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-violet: var(--violet);
+  --color-violet-deep: var(--violet-deep);
+  --color-lilac: var(--lilac);
+  --color-peach: var(--peach);
+  --color-mint: var(--mint);
+  --color-sky: var(--sky);
+  --color-butter: var(--butter);
+  --color-pink: var(--pink);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+  --shadow-soft: 0 10px 30px -12px rgb(91 63 224 / 0.18), 0 2px 6px -2px rgb(43 36 64 / 0.06);
+  --shadow-pop: 0 18px 40px -14px rgb(91 63 224 / 0.35);
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-display), var(--font-body), system-ui, sans-serif;
+}
+
+/* Soft pastel blobs behind everything */
+.pastel-bg {
+  background:
+    radial-gradient(40rem 30rem at 10% -10%, var(--lilac) 0%, transparent 60%),
+    radial-gradient(35rem 25rem at 100% 0%, var(--peach) 0%, transparent 55%),
+    radial-gradient(40rem 30rem at 80% 110%, var(--mint) 0%, transparent 60%),
+    radial-gradient(30rem 25rem at -10% 90%, var(--sky) 0%, transparent 60%),
+    var(--cream);
+  background-attachment: fixed;
+}
+
+.card {
+  background: rgb(255 255 255 / 0.82);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--line);
+  border-radius: 1.5rem;
+  box-shadow: var(--shadow-soft);
+}
+
+.scribble-underline {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'%3E%3Cpath d='M2 8 Q 50 2 100 7 T 198 5' fill='none' stroke='%23ffb38a' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: 100% 0.45em;
+  background-position: 0 100%;
+  padding-bottom: 0.1em;
+}
+
+.peep svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* React Flow, pastel edition */
+.react-flow__attribution {
+  display: none;
+}
+.react-flow__controls {
+  box-shadow: var(--shadow-soft);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.react-flow__controls-button {
+  border-bottom-color: var(--line);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
