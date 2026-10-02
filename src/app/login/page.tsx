@@ -1,5 +1,7 @@
+import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 import { auth, demoLoginEnabled, enabledProviders, signIn } from "@/auth";
+import { databaseProblem } from "@/db/health";
 import { BrainDots } from "@/components/BrainDots";
 import { Peep } from "@/components/Peep";
 import { Button, Logo } from "@/components/ui";
@@ -7,11 +9,33 @@ import { DOT_AVATAR } from "@/lib/avatar";
 
 const ICONS: Record<string, string> = { google: "🔵", github: "🐙" };
 
+const ERRORS: Record<string, string> = {
+  CredentialsSignin: "Hmm, that didn't work. Please enter your name and a valid email address.",
+  CallbackRouteError: "Sign-in crashed on the server. The details are in the terminal running `npm run dev`.",
+};
+
+/** Turns Auth.js failures into a friendly message on this page instead of an error screen. */
+async function trySignIn(provider: string, options: Record<string, string>) {
+  "use server";
+  try {
+    await signIn(provider, options);
+  } catch (e) {
+    // signIn redirects on success by throwing; only Auth.js errors are failures.
+    if (e instanceof AuthError) {
+      console.error("[auth] sign-in failed:", e.cause ?? e);
+      redirect(`/login?error=${e.type}`);
+    }
+    throw e;
+  }
+}
+
 export default async function LoginPage(props: PageProps<"/login">) {
   const session = await auth();
   if (session?.user) redirect("/home");
   const sp = await props.searchParams;
   const checkEmail = sp.check === "email";
+  const errorType = typeof sp.error === "string" ? sp.error : null;
+  const dbProblem = await databaseProblem();
   const oauth = enabledProviders.filter((p) => p.id === "google" || p.id === "github");
   const hasEmail = enabledProviders.some((p) => p.id === "resend");
 
@@ -26,6 +50,19 @@ export default async function LoginPage(props: PageProps<"/login">) {
           <p className="mt-1 text-ink-soft">Sign in so I can remember your brilliant (and chaotic) ideas.</p>
         </div>
 
+        {dbProblem && (
+          <div className="mt-6 rounded-2xl bg-butter px-4 py-3 text-sm" role="alert">
+            <p className="font-bold">🛠️ Almost there: the database needs attention</p>
+            <p className="mt-1">{dbProblem}</p>
+          </div>
+        )}
+
+        {errorType && !dbProblem && (
+          <p className="mt-6 rounded-2xl bg-pink px-4 py-3 text-center text-sm font-semibold" role="alert">
+            {ERRORS[errorType] ?? `Sign-in failed (${errorType}). Please try again.`}
+          </p>
+        )}
+
         {checkEmail && (
           <p className="mt-6 rounded-2xl bg-mint px-4 py-3 text-center text-sm font-semibold">
             📬 Check your inbox for a magic sign-in link!
@@ -38,7 +75,7 @@ export default async function LoginPage(props: PageProps<"/login">) {
               key={p.id}
               action={async () => {
                 "use server";
-                await signIn(p.id, { redirectTo: "/home" });
+                await trySignIn(p.id, { redirectTo: "/home" });
               }}
             >
               <Button variant="soft" className="w-full py-3">
@@ -52,7 +89,7 @@ export default async function LoginPage(props: PageProps<"/login">) {
               className="flex gap-2"
               action={async (fd) => {
                 "use server";
-                await signIn("resend", { email: String(fd.get("email")), redirectTo: "/home" });
+                await trySignIn("resend", { email: String(fd.get("email")), redirectTo: "/home" });
               }}
             >
               <input
@@ -71,7 +108,7 @@ export default async function LoginPage(props: PageProps<"/login">) {
               className="space-y-2 rounded-2xl border border-dashed border-violet/40 bg-lilac/30 p-4"
               action={async (fd) => {
                 "use server";
-                await signIn("demo", {
+                await trySignIn("demo", {
                   name: String(fd.get("name") ?? ""),
                   email: String(fd.get("email") ?? ""),
                   redirectTo: "/home",
