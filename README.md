@@ -23,11 +23,11 @@ Most AI chatbots just hand you **one answer**. You can't see *why*, what it igno
 
 **Connect Brain Dots does the opposite.** It lays out every dot your brain is juggling, connects them with real evidence, and lets you explore the whole picture before it gives its verdict.
 
-## 🎬 Watch the demo
+## 🎬 Watch the demo 
 
-[![Watch the Connect Brain Dots demo on YouTube](https://img.youtube.com/vi/vob_3fqcFGg/hqdefault.jpg)](https://youtu.be/vob_3fqcFGg)
+[![Watch the Connect Brain Dots demo on YouTube](https://img.youtube.com/vi/vob_3fqcFGg/hqdefault.jpg)](https://youtu.be/NS27DcTCoLs)
 
-▶️ **[Watch the demo on YouTube](https://youtu.be/vob_3fqcFGg)**: from "Should I do a PhD while AI is doing everything?" to a full decision dashboard. (Prefer a file? [Download Demo.mp4](Demo.mp4).)
+▶️ **[Watch the demo on YouTube](https://youtu.be/NS27DcTCoLs)**: from "Should I do a PhD while AI is doing everything?" to a full decision dashboard. (Prefer a file? [Download Demo.mp4](Demo.mp4).)
 
 ## ✨ What it does
 
