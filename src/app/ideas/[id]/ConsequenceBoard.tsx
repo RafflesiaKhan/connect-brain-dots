@@ -1,11 +1,11 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { Peep } from "@/components/Peep";
 import { Button, KIND_STYLE } from "@/components/ui";
 import { DOT_AVATAR, type AvatarConfig } from "@/lib/avatar";
 import type { Consequence, ConsequenceKind, Reflection } from "@/lib/types";
+import { BrainGraph } from "./BrainGraph";
 
 const KIND_EMOJI: Record<ConsequenceKind, string> = {
   constraint: "🚧",
@@ -60,45 +60,8 @@ export function ConsequenceBoard({
         <Peep config={DOT_AVATAR} size={72} mood="talking" />
       </div>
 
-      <div className="card relative mt-8 min-h-[220px] p-6">
-        <div className="flex flex-wrap justify-center gap-3">
-          <AnimatePresence>
-            {items.map((c, i) => (
-              <motion.div
-                key={c.id}
-                layout
-                initial={{ opacity: 0, scale: 0.4, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: [0, -4, 0] }}
-                exit={{ opacity: 0, scale: 1.4, filter: "blur(4px)" }}
-                transition={{
-                  opacity: { delay: i * 0.08 },
-                  scale: { type: "spring", stiffness: 260, damping: 16, delay: i * 0.08 },
-                  y: { duration: 3 + (i % 3), repeat: Infinity, ease: "easeInOut", delay: i * 0.2 },
-                }}
-                className={`group relative flex items-center gap-2 rounded-full ${KIND_STYLE[c.kind].bg} py-2 pl-3 pr-2 shadow-soft`}
-              >
-                <span aria-hidden className="text-lg">
-                  {c.emoji}
-                </span>
-                <span className="text-[15px] font-semibold">{c.text}</span>
-                <span className="rounded-full bg-white/70 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink-soft">
-                  {KIND_STYLE[c.kind].label}
-                </span>
-                <button
-                  type="button"
-                  aria-label={`Remove "${c.text}"`}
-                  onClick={() => setItems((xs) => xs.filter((x) => x.id !== c.id))}
-                  className="ml-1 h-6 w-6 cursor-pointer rounded-full bg-white/70 text-xs font-bold text-ink-soft opacity-60 transition hover:bg-white hover:opacity-100"
-                >
-                  ✕
-                </button>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-        {items.length === 0 && (
-          <p className="py-10 text-center text-muted">All popped! Add your own considerations, or just let me run with the idea.</p>
-        )}
+      <div className="card relative mt-8 overflow-clip p-4 sm:p-6">
+        <BrainGraph items={items} avatar={avatar} onRemove={(id) => setItems((xs) => xs.filter((x) => x.id !== id))} />
 
         <form
           className="mt-6 flex flex-wrap gap-2 border-t border-line pt-5"
