@@ -23,6 +23,10 @@ export const users = pgTable("user", {
   email: text("email").unique(),
   emailVerified: timestamp("emailVerified", { mode: "date" }),
   image: text("image"),
+  /** Lowercase handle for password login. */
+  username: text("username").unique(),
+  /** scrypt hash; null for accounts created through an OAuth provider. */
+  passwordHash: text("passwordHash"),
 });
 
 export const accounts = pgTable(

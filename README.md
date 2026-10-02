@@ -30,7 +30,7 @@ Light, playful pastel UI with animated [Open Peeps](https://www.openpeeps.com/) 
 | AI | Vercel AI SDK v7: Claude, OpenAI, Grok (xAI), Gemini, Ollama, plus a no-key Demo mode |
 | Research | Provider built-in web search, or Tavily for any model |
 | Database | Postgres (Neon free tier) via Drizzle ORM |
-| Auth | Auth.js v5: Google, GitHub, email magic link (Resend), dev-only quick login |
+| Auth | Auth.js v5: username/email + password (scrypt), optional Google/GitHub buttons |
 
 ## Getting started
 
@@ -59,7 +59,6 @@ Edit `.env.local` so it contains at least:
 ```
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/cbd"
 AUTH_SECRET="<output of: npx auth secret>"
-AUTH_DEMO_LOGIN="true"
 ```
 
 Then:
@@ -69,7 +68,7 @@ npm run db:push
 npm run dev
 ```
 
-Open http://localhost:3000, sign in with the quick local login (any name and email), and pick **Demo mode** at the AI step. Add a real key later in Settings.
+Open http://localhost:3000, click **Create account** (username, email, password), and pick **Demo mode** at the AI step. Add a real key later in Settings.
 
 ### 1. Database (Neon, free)
 
@@ -82,13 +81,13 @@ Any Postgres works (local Docker too). Migrations are generated into `drizzle/` 
 ### 2. Auth
 
 - `AUTH_SECRET`: run `npx auth secret`.
-- **Google**: create an OAuth client in Google Cloud Console, add redirect URI `http://localhost:3000/api/auth/callback/google` (plus your production URL), set `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET`.
-- Optional: GitHub (`AUTH_GITHUB_ID/SECRET`) and email magic links via Resend (`AUTH_RESEND_KEY`).
-- Local shortcut: `AUTH_DEMO_LOGIN=true` gives a name + email login with no password. It is ignored in production builds.
+- Sign-up is username + email + password, nothing else to configure. Passwords are hashed with scrypt; logins are rate limited per IP and account.
+- There is no "forgot password" email yet (that needs an email service).
+- Optional extra buttons: Google (`AUTH_GOOGLE_ID/SECRET`, redirect URI `https://YOUR-APP/api/auth/callback/google`) and GitHub (`AUTH_GITHUB_ID/SECRET`).
 
 ### 3. AI
 
-Each user picks their provider, model and key in **Settings** (keys are AES-256-GCM encrypted with `ENCRYPTION_KEY` or `AUTH_SECRET`). You can also set "house" keys in env (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `XAI_API_KEY`, `GOOGLE_GENERATIVE_AI_API_KEY`) used when a user hasn't added their own.
+Each user picks their provider, model and key in **Settings** (keys are AES-256-GCM encrypted with `ENCRYPTION_KEY` or `AUTH_SECRET`). You can also set "house" keys in env (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `XAI_API_KEY`, `GOOGLE_GENERATIVE_AI_API_KEY`) used when a user hasn't added their own. **On a public deployment leave them empty**, or every visitor spends your credits.
 
 - **Demo mode** needs no key and plays a sample analysis, so the whole UI can be explored.
 - **Ollama**: set the server URL (default `http://localhost:11434/api`). It must be reachable from the Next.js server. In production, per-user URLs are ignored unless `OLLAMA_ALLOW_CUSTOM_URL=true` (otherwise `OLLAMA_BASE_URL` is used), because a user-supplied URL lets the server be pointed at internal addresses.
@@ -134,7 +133,9 @@ src/
 
 ## Deploying
 
-Vercel works out of the box: add the env vars, point `DATABASE_URL` at Neon, add your production callback URL to Google. The run endpoint streams for up to 300 s (`maxDuration`), which needs a Vercel plan that allows it; the Hobby plan caps lower, so prefer faster models there.
+Step-by-step guide: **[DEPLOY.md](DEPLOY.md)** (Neon + Vercel, free).
+
+The analysis endpoint streams for up to 300 s (`maxDuration`). If your Vercel plan allows less, long research runs can be cut off; faster models avoid that.
 
 ## Roadmap
 
