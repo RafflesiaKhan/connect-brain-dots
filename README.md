@@ -120,6 +120,8 @@ Open http://localhost:3000, click **Create account**, and choose **Demo mode** a
 ### Getting an AI key
 Each user brings their own key and picks a model in **Settings**. Keys are encrypted (AES-256-GCM) before they're stored and never sent back to the browser.
 
+Every provider offers 3 to 4 models, sorted from 🧠 **Big brain** (deepest reasoning, most tokens) to 🐣 **Tiny** (fewest tokens, cheapest), with context size and price shown. You can also type any other model id your provider supports.
+
 | Provider | Built-in web search | Get a key |
 |---|:--:|---|
 | Claude (Anthropic) | ✅ | [console.anthropic.com](https://console.anthropic.com/settings/keys) |

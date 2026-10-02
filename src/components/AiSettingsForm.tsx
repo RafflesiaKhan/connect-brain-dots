@@ -1,9 +1,9 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { useState, useTransition } from "react";
+import { useId, useState, useTransition } from "react";
 import { saveAiSettings, testAiConnection } from "@/app/actions";
-import { PROVIDERS, providerInfo, type ProviderId } from "@/lib/ai/catalog";
+import { formatContext, PROVIDERS, providerInfo, TIERS, type ProviderId } from "@/lib/ai/catalog";
 import type { AiSettingsView } from "@/lib/ai/providers";
 import { Button } from "./ui";
 
@@ -93,22 +93,7 @@ export function AiSettingsForm({
 
       {provider !== "demo" && (
         <>
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-bold">Model</span>
-            <input
-              className={input}
-              list={`models-${provider}`}
-              value={model}
-              onChange={(e) => setModel(e.target.value)}
-              placeholder={info.defaultModel}
-            />
-            <datalist id={`models-${provider}`}>
-              {info.models.map((m) => (
-                <option key={m} value={m} />
-              ))}
-            </datalist>
-            <span className="mt-1 block text-xs text-muted">Pick a suggestion or type any model id.</span>
-          </label>
+          <ModelPicker key={provider} provider={provider} model={model} onChange={setModel} />
 
           {info.needsKey && (
             <label className="block">
@@ -217,5 +202,125 @@ export function AiSettingsForm({
         )}
       </div>
     </form>
+  );
+}
+
+function formatPrice(n: number) {
+  return `$${Number.isInteger(n) ? n : n.toFixed(2)}`;
+}
+
+/** Model cards sorted biggest to smallest, plus a free-text escape hatch for unlisted models. */
+function ModelPicker({
+  provider,
+  model,
+  onChange,
+}: {
+  provider: ProviderId;
+  model: string;
+  onChange: (id: string) => void;
+}) {
+  const info = providerInfo(provider);
+  const name = useId();
+  const listed = info.models.some((m) => m.id === model);
+  const [custom, setCustom] = useState(!listed && model !== "");
+  const models = [...info.models].sort((a, b) => TIERS[b.tier].rank - TIERS[a.tier].rank);
+
+  return (
+    <fieldset>
+      <legend className="mb-1.5 block text-sm font-bold">
+        Model <span className="font-normal text-muted">(sorted from biggest brain to lightest)</span>
+      </legend>
+      <div className="space-y-2" role="radiogroup">
+        {models.map((m) => {
+          const tier = TIERS[m.tier];
+          const checked = !custom && model === m.id;
+          return (
+            <label
+              key={m.id}
+              className={`flex cursor-pointer items-start gap-3 rounded-2xl border px-4 py-3 transition ${
+                checked ? "border-violet bg-lilac/40 ring-4 ring-violet/15" : "border-line bg-white hover:border-violet/50"
+              }`}
+            >
+              <input
+                type="radio"
+                name={name}
+                value={m.id}
+                checked={checked}
+                onChange={() => {
+                  setCustom(false);
+                  onChange(m.id);
+                }}
+                className="mt-1 accent-violet"
+              />
+              <span className="min-w-0 flex-1">
+                <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <span className="font-semibold">{m.label}</span>
+                  {m.note && <span className="rounded-full bg-butter px-2 py-0.5 text-xs font-semibold">{m.note}</span>}
+                </span>
+                <span className="mt-0.5 block text-xs text-muted">
+                  {tier.emoji} {tier.label}: {tier.hint.toLowerCase()}
+                </span>
+                <span className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-ink-soft">
+                  {m.context && <span>📚 {formatContext(m.context)} context</span>}
+                  {m.price ? (
+                    <span>
+                      💸 {formatPrice(m.price[0])} in / {formatPrice(m.price[1])} out per 1M tokens
+                    </span>
+                  ) : (
+                    provider === "ollama" && <span>💸 Free, runs on your hardware</span>
+                  )}
+                </span>
+              </span>
+              <TokenMeter rank={tier.rank} />
+            </label>
+          );
+        })}
+
+        <label
+          className={`flex cursor-pointer items-start gap-3 rounded-2xl border px-4 py-3 transition ${
+            custom ? "border-violet bg-lilac/40 ring-4 ring-violet/15" : "border-dashed border-line bg-white hover:border-violet/50"
+          }`}
+        >
+          <input
+            type="radio"
+            name={name}
+            checked={custom}
+            onChange={() => {
+              setCustom(true);
+              if (listed) onChange("");
+            }}
+            className="mt-1 accent-violet"
+          />
+          <span className="min-w-0 flex-1">
+            <span className="font-semibold">Another model</span>
+            <span className="mt-0.5 block text-xs text-muted">Type any model id your provider supports.</span>
+            {custom && (
+              <input
+                className={`${input} mt-2`}
+                value={model}
+                onChange={(e) => onChange(e.target.value)}
+                placeholder={info.defaultModel}
+                autoFocus
+              />
+            )}
+          </span>
+        </label>
+      </div>
+      <p className="mt-1.5 text-xs text-muted">
+        One analysis makes several calls (research, scoring, fact-checking), so bigger models cost noticeably more per run.
+        Prices are the provider&rsquo;s list prices and may change.
+      </p>
+    </fieldset>
+  );
+}
+
+/** Four dots: how many tokens (and dollars) this tier tends to burn. */
+function TokenMeter({ rank }: { rank: number }) {
+  return (
+    <span className="mt-1 flex shrink-0 gap-0.5" title="Token appetite" aria-label={`Token appetite ${rank} of 4`}>
+      {[1, 2, 3, 4].map((i) => (
+        <span key={i} className={`h-2 w-2 rounded-full ${i <= rank ? "bg-violet" : "bg-line"}`} />
+      ))}
+    </span>
   );
 }
