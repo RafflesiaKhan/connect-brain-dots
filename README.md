@@ -25,15 +25,9 @@ Most AI chatbots just hand you **one answer**. You can't see *why*, what it igno
 
 ## 🎬 Watch the demo
 
-<!--
-  To make the video play right here on GitHub: open this README in GitHub's web editor,
-  drag Demo.mp4 onto this spot, and GitHub will insert a playable video link.
-  The link below opens the file stored in the repo.
--->
+[![Watch the Connect Brain Dots demo on YouTube](https://img.youtube.com/vi/vob_3fqcFGg/hqdefault.jpg)](https://youtu.be/vob_3fqcFGg)
 
-[![Watch the Connect Brain Dots demo](docs/screenshots/09-results-intro.png)](Demo.mp4)
-
-▶️ **[Play the demo video](Demo.mp4)**: from "Should I do a PhD while AI is doing everything?" to a full decision dashboard.
+▶️ **[Watch the demo on YouTube](https://youtu.be/vob_3fqcFGg)**: from "Should I do a PhD while AI is doing everything?" to a full decision dashboard. (Prefer a file? [Download Demo.mp4](Demo.mp4).)
 
 ## ✨ What it does
 
