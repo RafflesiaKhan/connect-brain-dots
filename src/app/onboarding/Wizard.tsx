@@ -328,7 +328,10 @@ function ProfileChat({
                       onClick={() => {
                         if (q.kind === "choice") return answer(o);
                         const cur = draft as string[];
-                        setDraft(on ? cur.filter((x) => x !== o) : [...cur, o]);
+                        if (on) return setDraft(cur.filter((x) => x !== o));
+                        // "Just me" and the other people options exclude each other.
+                        if (q.exclusive === o) return setDraft([o]);
+                        setDraft([...cur.filter((x) => x !== q.exclusive), o]);
                       }}
                       className={`cursor-pointer rounded-full border-2 px-4 py-2 text-sm font-semibold transition-all hover:-translate-y-0.5 ${
                         on ? "border-violet bg-violet text-white" : "border-line bg-white"

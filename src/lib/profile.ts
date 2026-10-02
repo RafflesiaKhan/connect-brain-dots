@@ -11,6 +11,8 @@ export type ProfileQuestion = {
   reply?: string;
   kind: "choice" | "multi" | "text";
   options?: string[];
+  /** For multi-select: an option that can't be combined with the others (e.g. "Just me"). */
+  exclusive?: string;
   placeholder?: string;
 };
 
@@ -24,9 +26,20 @@ export const PERSONAL_QUESTIONS: ProfileQuestion[] = [
   },
   {
     id: "household",
-    ask: "Who shares your decisions (and your fridge)?",
+    ask: "Who has a say in your decisions (and your fridge)?",
     kind: "multi",
-    options: ["Just me", "Partner / spouse", "Kids", "Parents", "Roommates", "Pets (they vote too)"],
+    options: [
+      "Just me",
+      "Partner / spouse",
+      "Kids",
+      "Parents",
+      "Siblings",
+      "Friends",
+      "Roommates",
+      "Social media / online community",
+      "Pets (they vote too)",
+    ],
+    exclusive: "Just me",
     reply: "Noted. I'll keep the whole committee in mind.",
   },
   {
