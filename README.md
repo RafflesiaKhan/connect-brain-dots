@@ -41,6 +41,36 @@ npm run db:push              # create tables
 npm run dev                  # http://localhost:3000
 ```
 
+### Quick local run (about 5 minutes)
+
+Needs Node 20.9+ and Docker.
+
+```bash
+git clone https://github.com/RafflesiaKhan/connect-brain-dots.git
+cd connect-brain-dots
+git checkout mycwork/epic-ptolemy-yjygi8
+npm install
+docker compose up -d          # local Postgres on port 5432
+cp .env.example .env.local
+```
+
+Edit `.env.local` so it contains at least:
+
+```
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/cbd"
+AUTH_SECRET="<output of: npx auth secret>"
+AUTH_DEMO_LOGIN="true"
+```
+
+Then:
+
+```bash
+npm run db:push
+npm run dev
+```
+
+Open http://localhost:3000, sign in with the quick local login (any name and email), and pick **Demo mode** at the AI step. Add a real key later in Settings.
+
 ### 1. Database (Neon, free)
 
 1. Create a project at [neon.tech](https://neon.tech).
