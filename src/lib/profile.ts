@@ -1,3 +1,6 @@
+/** Max characters for one free-text answer (enforced in the form and on the server). */
+export const ANSWER_MAX = 4000;
+
 export type ProfileAnswers = Record<string, string | string[]>;
 
 export type ProfileQuestion = {

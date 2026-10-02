@@ -10,7 +10,7 @@ import { Peep } from "@/components/Peep";
 import { Button } from "@/components/ui";
 import type { AiSettingsView } from "@/lib/ai/providers";
 import { DEFAULT_AVATAR, DOT_AVATAR, type AvatarConfig } from "@/lib/avatar";
-import { questionsFor, type ProfileAnswers } from "@/lib/profile";
+import { ANSWER_MAX, questionsFor, type ProfileAnswers } from "@/lib/profile";
 
 type Step = "avatar" | "basics" | "chat" | "ai" | "done";
 const ORDER: Step[] = ["avatar", "basics", "chat", "ai", "done"];
@@ -30,12 +30,19 @@ export function Wizard(props: {
   const [type, setType] = useState(props.initialType);
   const [answers, setAnswers] = useState<ProfileAnswers>(props.initialAnswers);
   const [pending, start] = useTransition();
+  const [saveError, setSaveError] = useState<string | null>(null);
   const idx = ORDER.indexOf(step);
 
   const save = (next: Step) =>
     start(async () => {
-      await saveProfile({ displayName: name.trim() || "Friend", avatar, profileType: type, answers });
-      setStep(next);
+      setSaveError(null);
+      try {
+        const res = await saveProfile({ displayName: name.trim() || "Friend", avatar, profileType: type, answers });
+        if (res.ok) setStep(next);
+        else setSaveError(res.message);
+      } catch {
+        setSaveError("Couldn't save your profile. Check the terminal running npm run dev, then try again.");
+      }
     });
 
   return (
@@ -121,6 +128,7 @@ export function Wizard(props: {
               onBack={() => setStep("basics")}
               onDone={() => save("ai")}
               pending={pending}
+              saveError={saveError}
             />
           )}
 
@@ -191,6 +199,7 @@ function ProfileChat({
   onBack,
   onDone,
   pending,
+  saveError,
 }: {
   name: string;
   avatar: AvatarConfig;
@@ -200,6 +209,7 @@ function ProfileChat({
   onBack: () => void;
   onDone: () => void;
   pending: boolean;
+  saveError: string | null;
 }) {
   const qs = questionsFor(type);
   const [i, setI] = useState(0);
@@ -273,20 +283,39 @@ function ProfileChat({
           <motion.div key={q.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
             {q.kind === "text" ? (
               <form
-                className="flex gap-2"
+                className="flex items-end gap-2"
                 onSubmit={(e) => {
                   e.preventDefault();
                   answer(String(draft).trim());
                 }}
               >
-                <input
-                  autoFocus
-                  value={String(draft)}
-                  onChange={(e) => setDraft(e.target.value)}
-                  placeholder={q.placeholder}
-                  className="min-w-0 flex-1 rounded-full border border-line bg-white px-4 py-2.5 outline-none focus:border-violet"
-                />
-                <Button type="submit">Send</Button>
+                <div className="min-w-0 flex-1">
+                  <textarea
+                    autoFocus
+                    rows={2}
+                    maxLength={ANSWER_MAX}
+                    value={String(draft)}
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                      // Enter sends, Shift+Enter adds a new line.
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        answer(String(draft).trim());
+                      }
+                    }}
+                    placeholder={q.placeholder}
+                    className="block max-h-48 min-h-[3rem] w-full resize-y rounded-3xl border border-line bg-white px-4 py-2.5 outline-none focus:border-violet"
+                  />
+                  <div className="mt-1 flex justify-between px-2 text-[11px] text-muted">
+                    <span>Enter to send · Shift+Enter for a new line</span>
+                    <span className={String(draft).length > ANSWER_MAX * 0.9 ? "font-bold text-[#c23b3b]" : ""}>
+                      {String(draft).length}/{ANSWER_MAX}
+                    </span>
+                  </div>
+                </div>
+                <Button type="submit" className="mb-6">
+                  Send
+                </Button>
               </form>
             ) : (
               <div className="flex flex-wrap gap-2">
@@ -329,6 +358,11 @@ function ProfileChat({
           <button type="button" onClick={onBack} className="cursor-pointer text-sm font-semibold text-muted hover:text-ink">
             ← Back
           </button>
+          {finished && saveError && (
+            <p role="alert" className="mx-3 flex-1 rounded-2xl bg-pink px-3 py-2 text-sm font-semibold">
+              ⚠️ {saveError}
+            </p>
+          )}
           {finished && (
             <Button onClick={onDone} disabled={pending}>
               {pending ? "Saving your brain..." : "Save profile →"}

@@ -64,6 +64,7 @@ export function BrainDump() {
           if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) submit();
         }}
         rows={4}
+        maxLength={4000}
         disabled={busy}
         placeholder="e.g. I want to cook lunch... maybe curry? But..."
         className="w-full resize-none rounded-3xl border-2 border-line bg-white/90 px-5 py-4 text-lg outline-none transition focus:border-violet focus:ring-4 focus:ring-violet/15"

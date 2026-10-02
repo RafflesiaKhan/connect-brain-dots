@@ -9,6 +9,7 @@ import { db, schema } from "@/db";
 import { PROVIDERS, type ProviderId } from "@/lib/ai/catalog";
 import { buildModel } from "@/lib/ai/providers";
 import { decrypt, encrypt } from "@/lib/crypto";
+import { ANSWER_MAX } from "@/lib/profile";
 import { currentUserId } from "@/lib/session";
 
 async function mustUser() {
@@ -32,12 +33,26 @@ const profileSchema = z.object({
   displayName: z.string().trim().min(1).max(60),
   avatar: avatarSchema,
   profileType: z.enum(["personal", "research"]),
-  answers: z.record(z.string(), z.union([z.string().max(1000), z.array(z.string().max(100)).max(12)])),
+  answers: z.record(z.string(), z.union([z.string().max(ANSWER_MAX), z.array(z.string().max(100)).max(12)])),
 });
 
-export async function saveProfile(input: z.infer<typeof profileSchema>) {
+export async function saveProfile(
+  input: z.infer<typeof profileSchema>,
+): Promise<{ ok: true } | { ok: false; message: string }> {
   const userId = await mustUser();
-  const data = profileSchema.parse(input);
+  const parsed = profileSchema.safeParse(input);
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0];
+    const where = issue.path.at(-1);
+    const message =
+      issue.code === "too_big"
+        ? `One of your answers${typeof where === "string" ? ` ("${where}")` : ""} is too long. Please keep it under ${ANSWER_MAX} characters.`
+        : issue.path[0] === "displayName"
+          ? "Please add your name (up to 60 characters)."
+          : "Some of your answers couldn't be saved. Please check them and try again.";
+    return { ok: false, message };
+  }
+  const data = parsed.data;
   await db
     .insert(schema.profiles)
     .values({ userId, ...data, onboarded: true })
@@ -46,7 +61,7 @@ export async function saveProfile(input: z.infer<typeof profileSchema>) {
       set: { ...data, onboarded: true, updatedAt: new Date() },
     });
   revalidatePath("/", "layout");
-  return { ok: true };
+  return { ok: true } as const;
 }
 
 const providerIds = PROVIDERS.map((p) => p.id) as [ProviderId, ...ProviderId[]];
