@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Bar,
   BarChart,
@@ -68,7 +69,11 @@ export function ScoreBars({ result }: { result: IdeaResult }) {
 /* ─── Criteria profile of the top 3 (radar caps at 3 series for CVD safety) ── */
 
 export function RadarCompare({ result }: { result: IdeaResult }) {
-  const top = byId(result.options.filter((o) => o.rank <= 3));
+  // Up to 3 at once: beyond that, overlapping shapes stop being readable.
+  const [picked, setPicked] = useState<string[]>(() => result.options.filter((o) => o.rank <= 3).map((o) => o.id));
+  const toggle = (id: string) =>
+    setPicked((p) => (p.includes(id) ? (p.length > 1 ? p.filter((x) => x !== id) : p) : [...p, id].slice(-3)));
+  const top = byId(result.options.filter((o) => picked.includes(o.id)));
   const data = result.criteria.map((c) => {
     const row: Record<string, string | number> = { criterion: c.name };
     for (const o of top) row[o.id] = o.scores.find((s) => s.criterionId === c.id)?.score ?? 0;
@@ -76,7 +81,23 @@ export function RadarCompare({ result }: { result: IdeaResult }) {
   });
   return (
     <div>
-      <div className="h-[300px]" role="img" aria-label="Criteria comparison of the top three options">
+      <div className="mb-2 flex flex-wrap gap-1.5">
+        {byId(result.options).map((o) => (
+          <button
+            key={o.id}
+            type="button"
+            onClick={() => toggle(o.id)}
+            aria-pressed={picked.includes(o.id)}
+            className={`flex cursor-pointer items-center gap-1.5 rounded-full border-2 px-2.5 py-0.5 text-xs font-semibold transition ${
+              picked.includes(o.id) ? "bg-white" : "border-transparent bg-white/50 text-muted"
+            }`}
+            style={{ borderColor: picked.includes(o.id) ? optionColor(o.id) : undefined }}
+          >
+            <SwatchDot color={optionColor(o.id)} /> {o.emoji} {o.name}
+          </button>
+        ))}
+      </div>
+      <div className="h-[300px]" role="img" aria-label="Criteria comparison of the selected options">
         <ResponsiveContainer>
           <RadarChart data={data} outerRadius="62%">
             <PolarGrid stroke={GRID} />

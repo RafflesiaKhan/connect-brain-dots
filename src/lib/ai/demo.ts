@@ -107,6 +107,13 @@ export async function runDemo(
       summary: "Thin-sliced meat stir-fried with veggies in a light soy-ginger-garlic sauce over rice.",
       steps: ["Start the rice", "Slice meat thin and marinate 10 min in soy, garlic, ginger", "Stir-fry veggies on high heat, then meat", "Toss with sauce and serve over rice"],
       pros: ["Fast", "Light on oil", "Not curry, so husband-approved"], cons: ["Needs some veggies in the fridge", "Less 'cozy' than a curry"],
+      outcomes: [
+        { text: "Everyone finishes their plate, no curry complaints", effect: "positive" as const, horizon: "short" as const, likelihood: 4, impact: 4, consequenceIds: c("c1") },
+        { text: "Lunch is ready in about 20 minutes", effect: "positive" as const, horizon: "short" as const, likelihood: 5, impact: 3, consequenceIds: c("c4") },
+        { text: "Builds a healthier weekly cooking habit", effect: "positive" as const, horizon: "long" as const, likelihood: 3, impact: 4, consequenceIds: c("c2") },
+        { text: "Extra trip to the shop if veggies are missing", effect: "negative" as const, horizon: "short" as const, likelihood: 2, impact: 2, consequenceIds: c("c6") },
+      ],
+     
       effort: 2, risk: 1, addresses: c("c1", "c2", "c3", "c4"), violates: [],
       scores: [
         { criterionId: "k1", score: 8.5, rationale: "Mild, non-curry flavors are a common win with curry skeptics.", evidenceIds: ["e3", "e7"], consequenceIds: c("c1") },
@@ -120,6 +127,12 @@ export async function runDemo(
       summary: "Get the 'fry' crunch your husband likes using the air fryer or oven, with a quick salad.",
       steps: ["Season meat with salt, pepper, paprika", "Air-fry 12-15 min, flipping once", "Serve with rice and a cucumber-tomato salad"],
       pros: ["Crispy like fried", "Much less oil", "Almost hands-off"], cons: ["Needs an air fryer or oven", "Can dry out if overcooked"],
+      outcomes: [
+        { text: "Crunchy meat that feels like a treat", effect: "positive" as const, horizon: "short" as const, likelihood: 4, impact: 3, consequenceIds: c("c1") },
+        { text: "Far less oil than pan frying", effect: "positive" as const, horizon: "long" as const, likelihood: 4, impact: 3, consequenceIds: c("c2") },
+        { text: "Meat dries out if left in too long", effect: "negative" as const, horizon: "short" as const, likelihood: 3, impact: 2, consequenceIds: [] },
+      ],
+     
       effort: 1, risk: 2, addresses: c("c1", "c2", "c3", "c4"), violates: [],
       scores: [
         { criterionId: "k1", score: 8, rationale: "Delivers the fried texture without curry.", evidenceIds: ["e7"], consequenceIds: c("c1") },
@@ -133,6 +146,12 @@ export async function runDemo(
       summary: "Your original plan: rice and a rich meat curry.",
       steps: ["Brown onions and spices", "Add meat and simmer 40+ min", "Serve with rice"],
       pros: ["You crave it", "Great leftovers"], cons: ["Husband dislikes curry", "Longer cook time"],
+      outcomes: [
+        { text: "Husband skips lunch or eats reluctantly", effect: "negative" as const, horizon: "short" as const, likelihood: 4, impact: 4, consequenceIds: c("c1") },
+        { text: "Lunch runs late after a long simmer", effect: "negative" as const, horizon: "short" as const, likelihood: 4, impact: 2, consequenceIds: c("c4") },
+        { text: "Brilliant leftovers for tomorrow", effect: "positive" as const, horizon: "short" as const, likelihood: 5, impact: 3, consequenceIds: c("c5") },
+      ],
+     
       effort: 3, risk: 4, addresses: c("c3", "c5"), violates: c("c1", "c4"),
       scores: [
         { criterionId: "k1", score: 2.5, rationale: "Directly conflicts with your husband's taste.", evidenceIds: ["e7"], consequenceIds: c("c1") },
@@ -146,6 +165,12 @@ export async function runDemo(
       summary: "Cook one gently spiced meat braise; you add curry sauce to your plate, he keeps his mild.",
       steps: ["Braise meat with onion, garlic, tomato", "Split a portion and stir curry paste into yours", "Serve both with rice"],
       pros: ["Everyone gets their way", "Fantastic leftovers"], cons: ["Takes longer", "Two pans to wash"],
+      outcomes: [
+        { text: "Both of you eat what you like", effect: "positive" as const, horizon: "short" as const, likelihood: 4, impact: 4, consequenceIds: c("c1") },
+        { text: "Leftovers taste even better tomorrow", effect: "positive" as const, horizon: "short" as const, likelihood: 4, impact: 3, consequenceIds: c("c5") },
+        { text: "More washing up and a later lunch", effect: "negative" as const, horizon: "short" as const, likelihood: 4, impact: 2, consequenceIds: c("c4") },
+      ],
+     
       effort: 3, risk: 2, addresses: c("c1", "c3", "c5"), violates: c("c4"),
       scores: [
         { criterionId: "k1", score: 8, rationale: "Sauce-on-the-side lets each person customize.", evidenceIds: ["e6", "e3"], consequenceIds: c("c1") },

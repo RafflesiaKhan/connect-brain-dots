@@ -259,7 +259,7 @@ ${criteriaList}
 ## Evidence
 ${evidenceList}
 
-Propose 3 to 5 genuinely different options (not small variations). For each, score EVERY criterion 0-10 with a one-sentence rationale and cite the evidence ids (e.g. e2) and consideration ids (e.g. c1) that justify the score. Only cite ids listed above. List which considerations each option addresses and which it violates. Be honest: options that break a hard constraint should score low.`,
+Propose 3 to 5 genuinely different options (not small variations). For each, score EVERY criterion 0-10 with a one-sentence rationale and cite the evidence ids (e.g. e2) and consideration ids (e.g. c1) that justify the score. Only cite ids listed above. List which considerations each option addresses and which it violates, and 3 to 6 likely consequences (good and bad, short and long term) with likelihood and impact. Be honest: options that break a hard constraint should score low.`,
     signal,
   );
   const evidenceIds = new Set(evidence.map((e) => e.id));
@@ -274,6 +274,12 @@ Propose 3 to 5 genuinely different options (not small variations). For each, sco
       steps: o.steps,
       pros: o.pros,
       cons: o.cons,
+      outcomes: o.outcomes.slice(0, 6).map((x) => ({
+        ...x,
+        likelihood: Math.min(5, Math.max(1, Math.round(x.likelihood) || 3)),
+        impact: Math.min(5, Math.max(1, Math.round(x.impact) || 3)),
+        consequenceIds: x.consequenceIds.map((id) => id.trim().toLowerCase()).filter((id) => consequenceIds.has(id)),
+      })),
       effort: Math.min(5, Math.max(1, Math.round(o.effort))),
       risk: Math.min(5, Math.max(1, Math.round(o.risk))),
       addresses: o.addresses.map((x) => x.toLowerCase()).filter((x) => consequenceIds.has(x)),

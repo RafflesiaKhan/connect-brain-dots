@@ -53,6 +53,15 @@ export type Score = {
   adjustNote?: string;
 };
 
+export type Outcome = {
+  text: string;
+  effect: "positive" | "negative";
+  horizon: "short" | "long";
+  likelihood: number; // 1-5
+  impact: number; // 1-5
+  consequenceIds: string[];
+};
+
 export type Option = {
   id: string;
   name: string;
@@ -61,6 +70,8 @@ export type Option = {
   steps: string[];
   pros: string[];
   cons: string[];
+  /** Likely consequences of choosing this option. Missing on results created before this field existed. */
+  outcomes?: Outcome[];
   effort: number; // 1-5
   risk: number; // 1-5
   addresses: string[]; // consequence ids

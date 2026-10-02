@@ -61,6 +61,18 @@ export const optionsSchema = z.object({
         steps: z.array(z.string()).describe("2 to 5 concrete steps"),
         pros: z.array(z.string()),
         cons: z.array(z.string()),
+        outcomes: z
+          .array(
+            z.object({
+              text: z.string().describe("A concrete consequence of choosing this option, max 14 words"),
+              effect: z.enum(["positive", "negative"]),
+              horizon: z.enum(["short", "long"]).describe("short = days to months, long = a year or more"),
+              likelihood: z.number().describe("1 (unlikely) to 5 (almost certain)"),
+              impact: z.number().describe("1 (minor) to 5 (life-changing)"),
+              consequenceIds: z.array(z.string()).describe("Consideration ids this consequence touches, e.g. c2"),
+            }),
+          )
+          .describe("3 to 6 likely consequences, both good and bad"),
         effort: z.number().describe("1 (trivial) to 5 (huge)"),
         risk: z.number().describe("1 (safe) to 5 (risky)"),
         addresses: z.array(z.string()).describe("Consideration ids this option satisfies, e.g. c1"),

@@ -19,10 +19,12 @@ const replies = [
     { claim: "Partner dislikes curry", sourceNumber: 0, kind: "profile", strength: "strong" }] },
   { options: [
     { name: "Curry", emoji: "🍛", summary: "s", steps: ["a"], pros: ["p"], cons: ["c"], effort: 3, risk: 4,
+      outcomes: [{ text: "Partner unhappy", effect: "negative", horizon: "short", likelihood: 9, impact: 4, consequenceIds: ["c1", "c42"] }],
       addresses: ["c9"], violates: ["c1"], scores: [
         { criterionId: "k1", score: 9, rationale: "r", evidenceIds: ["e99"], consequenceIds: [] },
         { criterionId: "k2", score: 5, rationale: "r", evidenceIds: [], consequenceIds: [] }] },
     { name: "Stir-fry", emoji: "🥢", summary: "s", steps: ["a"], pros: ["p"], cons: ["c"], effort: 2, risk: 1,
+      outcomes: [],
       addresses: ["c1"], violates: [], scores: [
         { criterionId: "K1", score: 8, rationale: "r", evidenceIds: ["e2"], consequenceIds: ["c1"] },
         { criterionId: "k2", score: 15, rationale: "r", evidenceIds: ["e1"], consequenceIds: [] }] }] },
@@ -71,6 +73,7 @@ assert(result.searchMode === "none", "no search configured -> searchMode none");
 assert(result.criteria[0].weight === 5 / 8, "weights normalized from importance");
 assert(curry.scores[0].evidenceIds.length === 0 && curry.scores[0].unsupported, "invented evidence id e99 dropped and flagged");
 assert(curry.addresses.length === 0, "unknown consequence id c9 dropped");
+assert(curry.outcomes?.[0].likelihood === 5 && curry.outcomes[0].consequenceIds.join() === "c1", "outcome clamped and ids filtered");
 assert(stir.scores[0].score === 8 && stir.scores[0].consequenceIds[0] === "c1", "criterion id matched case-insensitively");
 assert(stir.scores[1].score === 10, "score clamped to 10");
 assert(curry.scores[0].adjustedFrom === 9 && curry.scores[0].score === 3, "critique adjustment applied");
