@@ -21,7 +21,11 @@ export function ThinkingView({
   stale?: boolean;
 }) {
   const logEnd = useRef<HTMLDivElement>(null);
-  useEffect(() => logEnd.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), [logs]);
+  useEffect(() => {
+    // Block body on purpose: newer browsers return a Promise from scrollIntoView,
+    // and React treats any value returned from an effect as its cleanup.
+    logEnd.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [logs]);
   const doneCount = STAGES.filter((s) => stages[s.id] === "done").length;
   const pct = stale ? 50 : Math.round((doneCount / STAGES.length) * 100);
 

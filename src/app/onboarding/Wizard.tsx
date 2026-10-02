@@ -210,7 +210,11 @@ function ProfileChat({
   const q = qs[i];
   const finished = i >= qs.length;
 
-  useEffect(() => bottom.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), [log, typing]);
+  useEffect(() => {
+    // Block body on purpose: newer browsers return a Promise from scrollIntoView,
+    // and React treats any value returned from an effect as its cleanup.
+    bottom.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [log, typing]);
 
   const answer = (value: string | string[]) => {
     const shown = Array.isArray(value) ? value.join(", ") : value;
