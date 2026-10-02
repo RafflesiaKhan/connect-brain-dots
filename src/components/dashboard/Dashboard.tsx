@@ -62,9 +62,9 @@ export function Dashboard({
         initial={{ opacity: 0, scale: 0.97 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ type: "spring", stiffness: 120 }}
-        className="card relative overflow-hidden p-6 sm:p-8"
+        className="card relative isolate overflow-hidden p-6 sm:p-8"
       >
-        <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full opacity-25" style={{ background: optionColor(winner.id) }} />
+        <div className="pointer-events-none absolute -right-16 -top-16 -z-10 h-56 w-56 rounded-full opacity-25" style={{ background: optionColor(winner.id) }} />
         <p className="text-sm font-semibold text-muted">&ldquo;{prompt.length > 140 ? prompt.slice(0, 140) + "..." : prompt}&rdquo;</p>
         <h1 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">{s.headline}</h1>
 
