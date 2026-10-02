@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
+import { LocalTime } from "@/components/LocalTime";
 import { Peep } from "@/components/Peep";
 import { Button } from "@/components/ui";
 import { providerInfo } from "@/lib/ai/catalog";
@@ -282,7 +283,7 @@ export function Dashboard({
 
       <p className="pb-4 text-center text-xs text-muted">
         Thought up by {providerInfo(result.provider).emoji} {providerInfo(result.provider).label} ({result.model}) · research:{" "}
-        {result.searchMode} · {new Date(result.generatedAt).toLocaleString()}
+        {result.searchMode} · <LocalTime iso={result.generatedAt} />
         {result.provider === "demo" && " · Demo mode shows a sample analysis. Connect an AI in Settings for the real thing."}
       </p>
     </div>

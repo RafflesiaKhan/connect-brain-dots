@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { desc, eq } from "drizzle-orm";
 import { AppShell } from "@/components/AppShell";
+import { LocalTime } from "@/components/LocalTime";
 import { Peep } from "@/components/Peep";
 import { db, schema } from "@/db";
 import { providerInfo } from "@/lib/ai/catalog";
@@ -75,7 +76,9 @@ export default async function HomePage() {
                   >
                     <div className="flex items-center justify-between gap-2">
                       <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${st.cls}`}>{st.label}</span>
-                      <time className="text-xs text-muted">{idea.updatedAt.toLocaleDateString()}</time>
+                      <span className="text-xs text-muted">
+                        <LocalTime iso={idea.updatedAt.toISOString()} dateOnly />
+                      </span>
                     </div>
                     <h3 className="mt-3 font-display text-lg font-semibold leading-snug group-hover:text-violet">
                       {idea.title}
