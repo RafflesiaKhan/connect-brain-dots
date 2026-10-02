@@ -7,6 +7,9 @@ export async function databaseProblem(): Promise<string | null> {
   if (!process.env.DATABASE_URL) {
     return "DATABASE_URL is not set. Add it to .env.local and restart `npm run dev`.";
   }
+  if (process.env.DATABASE_URL.includes("ep-xxxx")) {
+    return 'DATABASE_URL in .env.local is still the example placeholder. For the Docker database use postgresql://postgres:postgres@localhost:5432/cbd, then run `npm run db:push` and restart `npm run dev`.';
+  }
   try {
     await db.execute(sql`select 1 from "user" limit 1`);
     return null;
@@ -15,7 +18,10 @@ export async function databaseProblem(): Promise<string | null> {
     const code = err.code ?? err.cause?.code;
     console.error("[db] health check failed:", e);
     if (code === "42P01") return "The database is reachable but its tables are missing. Run `npm run db:push`, then refresh.";
-    if (code === "ECONNREFUSED" || code === "ENOTFOUND") {
+    if (code === "ENOTFOUND") {
+      return "The database host in DATABASE_URL doesn't exist. Check the address in .env.local, then restart `npm run dev`.";
+    }
+    if (code === "ECONNREFUSED") {
       return "Can't reach the database. If you use Docker, run `docker compose up -d` (and make sure Docker Desktop is open), then refresh.";
     }
     if (code === "28P01" || code === "3D000") {
