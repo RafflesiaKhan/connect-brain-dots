@@ -1,5 +1,17 @@
 # Deploying Connect Brain Dots (free)
 
+## Current deployment status: automatic deployments disabled
+
+The root `vercel.json` sets `git.deploymentEnabled` to `false`, disabling automatic Vercel deployments for all branches containing this configuration, including production and pull request previews. Once merged into `main`, future branches created from `main` inherit it. Older branches without this configuration can still trigger deployments.
+
+This change does not take the existing live site offline, cancel builds already running, or prevent deployments through the Vercel dashboard, CLI, or deploy hooks. To stop serving the current site, pause the project in Vercel separately. For a project-wide stop on Git-triggered deployments, disconnect the Git repository in Vercel project settings as well.
+
+To resume automatic deployments, change `git.deploymentEnabled` to `true` (or remove the setting) in a reviewed pull request and merge it into the relevant branch.
+
+Reference: [Vercel Git configuration](https://vercel.com/docs/project-configuration/git-configuration#gitdeploymentenabled).
+
+The setup guide below is for intentionally deploying or restoring the app.
+
 Goal: a public link where anyone can create an account (username, email, password), add **their own** AI key, and start using the app. Your cost: $0 for hosting and database on the free tiers.
 
 You need: a GitHub account (you have one), about 20 minutes.
@@ -51,7 +63,7 @@ Copy the long random string it prints. This signs login sessions and encrypts us
 2. Build your avatar, answer Dot's questions, then pick an AI provider and paste a key (or choose **Demo mode** to look around first).
 3. Type a thought and watch the dots connect.
 
-Every `git push` to the production branch redeploys automatically.
+Automatic redeployment on `git push` is disabled by the current `vercel.json`. Re-enable it using the instructions above only when you intend to resume deployments.
 
 ---
 
